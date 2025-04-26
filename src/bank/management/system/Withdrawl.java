@@ -86,8 +86,7 @@ public class Withdrawl extends JFrame implements ActionListener {
                         return;
                     }
 
-                    c.statement.executeUpdate("insert into bank values('" + pin + "', '" + date + "', 'Withdrawl', '" + amount + "' )");
-                    JOptionPane.showMessageDialog(null, "Rs. " + amount + " Debited Successfully");
+                    c.statement.executeUpdate("insert into bank (card_number, date, type, amount) values ('" + pin + "', '" + date + "', 'Withdrawl', '" + amount + "')");                    JOptionPane.showMessageDialog(null, "Rs. " + amount + " Debited Successfully");
                     setVisible(false);
                     new main_Class(pin);
 

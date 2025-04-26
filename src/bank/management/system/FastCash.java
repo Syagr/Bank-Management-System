@@ -108,7 +108,7 @@ public class FastCash extends JFrame implements ActionListener {
                     return;
                 }
 
-                c.statement.executeUpdate("insert into bank values('"+pin+"','"+date+"', 'withdrawl', '"+amount+"')");
+                c.statement.executeUpdate("insert into bank (card_number, date, type, amount) values ('"+pin+"', '"+date+"', 'withdrawl', '"+amount+"')");
                 JOptionPane.showMessageDialog(null, "Rs. "+amount+" Debited Successfully");
             }catch (Exception E){
                 E.printStackTrace();
