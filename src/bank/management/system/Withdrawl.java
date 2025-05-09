@@ -22,7 +22,7 @@ public class Withdrawl extends JFrame implements ActionListener {
         l3.setBounds(0,0,1550,830);
         add(l3);
 
-        JLabel label1 = new JLabel("MAXIMUM WITHDRAWAL IS RS.10,000");
+        JLabel label1 = new JLabel("MAXIMUM WITHDRAWAL IS UAH.10,000");
         label1.setForeground(Color.WHITE);
         label1.setFont(new Font("System", Font.BOLD, 16));
         label1.setBounds(460,180,700,35);
@@ -62,9 +62,9 @@ public class Withdrawl extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    @Override
+     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==b1) {
+        if (e.getSource() == b1) {
             try {
                 String amount = textField.getText();
                 Date date = new Date();
@@ -72,29 +72,41 @@ public class Withdrawl extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(null, "Please enter the Amount you want to withdraw");
                 } else {
                     Connn c = new Connn();
-                    ResultSet resultSet = c.statement.executeQuery("select * from bank where pin = '" + pin + "'");
-                    int balance = 0;
-                    while (resultSet.next()) {
-                        if (resultSet.getString("type").equals("Deposit")) {
-                            balance += Integer.parseInt(resultSet.getString("amount"));
-                        } else {
-                            balance -= Integer.parseInt(resultSet.getString("amount"));
+    
+                    // Получаем card_number из таблицы login на основе pin
+                    ResultSet rs = c.statement.executeQuery("SELECT card_number FROM login WHERE pin = '" + pin + "'");
+                    if (rs.next()) {
+                        String cardNumber = rs.getString("card_number");
+    
+                        // Проверяем баланс
+                        ResultSet resultSet = c.statement.executeQuery("SELECT * FROM bank WHERE card_number = '" + cardNumber + "'");
+                        double balance = 0.0;
+                        while (resultSet.next()) {
+                            if (resultSet.getString("type").equals("Deposit")) {
+                                balance += Double.parseDouble(resultSet.getString("amount"));
+                            } else {
+                                balance -= Double.parseDouble(resultSet.getString("amount"));
+                            }
                         }
+    
+                        if (balance < Double.parseDouble(amount)) {
+                            JOptionPane.showMessageDialog(null, "Insufficient Balance");
+                            return;
+                        }
+    
+                        // Вставляем данные в таблицу bank
+                        c.statement.executeUpdate("INSERT INTO bank (card_number, date, type, amount) VALUES ('" + cardNumber + "', '" + date + "', 'Withdrawl', '" + amount + "')");
+                        JOptionPane.showMessageDialog(null, "UAH. " + amount + " Debited Successfully");
+                        setVisible(false);
+                        new main_Class(pin);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Card Number not found for the given PIN");
                     }
-                    if (balance < Integer.parseInt(amount)) {
-                        JOptionPane.showMessageDialog(null, "Insuffient Balance");
-                        return;
-                    }
-
-                    c.statement.executeUpdate("insert into bank (card_number, date, type, amount) values ('" + pin + "', '" + date + "', 'Withdrawl', '" + amount + "')");                    JOptionPane.showMessageDialog(null, "Rs. " + amount + " Debited Successfully");
-                    setVisible(false);
-                    new main_Class(pin);
-
                 }
-            } catch (Exception E) {
-
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        } else if (e.getSource()==b2) {
+        } else if (e.getSource() == b2) {
             setVisible(false);
             new main_Class(pin);
         }
